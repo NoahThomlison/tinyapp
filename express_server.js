@@ -23,15 +23,15 @@ app.get('/urls', (req, res) => {
 })
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  
-  res.send("Ok");         
+  urlDatabase[generateRandomString()] = req.body.longURL
+  const templateVars = { urls: urlDatabase };
+  res.render('urls_index', templateVars)
 });
 
 // functionality for /urls/new page 
 app.get('/urls/new', (req, res) => {
   res.render('urls_new')
 })
-
 
 // functionality for /urls/:shortURL pages
 app.get("/urls/:shortURL", (req, res) => {
