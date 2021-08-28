@@ -10,14 +10,16 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 }
 
+// functionality for home page / 
+app.get('/', (req, res) => {
+  res.send('Hello')
+})
 
+
+// functionality for /urls page 
 app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render('urls_index', templateVars)
-})
-
-app.get('/urls/new', (req, res) => {
-  res.render('urls_new')
 })
 
 app.post("/urls", (req, res) => {
@@ -25,17 +27,18 @@ app.post("/urls", (req, res) => {
   res.send("Ok");         
 });
 
+// functionality for /urls/new page 
+app.get('/urls/new', (req, res) => {
+  res.render('urls_new')
+})
+
+
+// functionality for /urls/:shortURL pages
 app.get("/urls/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]
   const templateVars = { shortURL: req.params.shortURL, longURL: longURL };
   res.render("urls_show", templateVars);
 });
-
-app.get('/', (req, res) => {
-  res.send('Hello')
-})
-
-
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
@@ -56,6 +59,7 @@ function generateRandomString() {
   return (randomString)
 }
 
+//listening functionality
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`)
 })
