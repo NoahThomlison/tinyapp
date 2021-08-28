@@ -50,10 +50,10 @@ app.get("/hello", (req, res) => {
 
 //function which generates a random 6 letter string
 function generateRandomString() {
-  const alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  const alphabet = 'abcdefghijklmnopqrstuvwxyz123456789'
   let randomString = ''
   for (let i = 0; i < 6; i++){
-    let index = [Math.floor(Math.random() * 26)]
+    let index = [Math.floor(Math.random() * 35)]
     randomString = randomString + alphabet[index]
   }
   return (randomString)
@@ -63,3 +63,11 @@ function generateRandomString() {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`)
 })
+
+console.log(generateRandomString())
+console.log(generateRandomString())
+console.log(generateRandomString())
+console.log(generateRandomString())
+console.log(generateRandomString())
+console.log(generateRandomString())
+console.log(generateRandomString())
