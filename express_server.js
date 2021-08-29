@@ -37,14 +37,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 //post method for updating entries in the urls
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
-  console.log(shortURL)
   const newLongURL = req.body.longURL
-  console.log(newLongURL)
-
   urlDatabase[shortURL] = newLongURL
-  console.log(urlDatabase)
   res.redirect(`/urls`)
-
 });
 
 // functionality for /urls/new page 
