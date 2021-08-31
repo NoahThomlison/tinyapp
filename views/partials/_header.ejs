@@ -10,10 +10,18 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <h4>Welcome <%= username %></h4>
-    <form method="POST" action="/login">
-      <input name='username'>
-      <button type="submit" style='background-color: lightgreen; border-radius: 7px;'>Submit</button>
+    <% if(username){ %>
+      <a class="nav-item nav-link">Welcome <%= username %>!</a>
+      <form method="POST" action="/logout">
+        <button type="submit" style='background-color: lightgreen; border-radius: 7px;'>Logout</button>
+    <% } else{ %>  
+      <a class="nav-item nav-link">Please Sign In</a>
+      <form method="POST" action="/login">
+        <input name="username">
+        <button type="submit" style='background-color: lightgreen; border-radius: 7px;'>Submit</button>
+    <% } %>
     </form>
   </nav>
 </header>
+
+
