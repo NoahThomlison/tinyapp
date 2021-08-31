@@ -15,10 +15,12 @@ app.get('/', (req, res) => {
   res.send('Hello')
 })
 
-
 // functionality for /urls page 
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { 
+    // username: req.cookies["username"],
+    username: 'noah',
+    urls: urlDatabase };
   res.render('urls_index', templateVars)
 })
 
@@ -26,6 +28,12 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString()
   urlDatabase[shortURL] = req.body.longURL
   res.redirect(`/urls/${shortURL}`)
+});
+
+app.post("/login", (req, res) => {
+  const username = req.body.username;
+  res.cookie('username', username); 
+  res.redirect(`/urls/`)
 });
 
 //post method for deleting entries in the urls
@@ -50,7 +58,10 @@ app.get('/urls/new', (req, res) => {
 // functionality for /urls/:shortURL pages
 app.get("/urls/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]
-  const templateVars = { shortURL: req.params.shortURL, longURL: longURL };
+  const templateVars = { 
+    // username: req.cookies["username"],
+    username: 'noah',
+    shortURL: req.params.shortURL, longURL: longURL };
   res.render("urls_show", templateVars);
 });
 
