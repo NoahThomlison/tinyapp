@@ -32,9 +32,11 @@ app.get('/', (req, res) => {
 
 // functionality for /urls page 
 app.get('/urls', (req, res) => {
+  const userID = req.cookies["userID"]
   const templateVars = { 
-    username: req.cookies["username"],
+    user: users[userID],
     urls: urlDatabase };
+    console.log(templateVars)
   res.render('urls_index', templateVars)
 })
 
@@ -47,12 +49,17 @@ app.post("/urls", (req, res) => {
 // functionality for register / 
 app.get('/register', (req, res) => {
   const templateVars = { 
-    username: req.cookies["username"],
+    user: req.cookies["userID"],
     urls: urlDatabase };
     res.render('urls_registration', templateVars)
 })
 
 app.post("/register", (req, res) => {
+  if (!req.body.email || !req.body.password) return (res.status(400).send('Bad Request'));
+  console.log('1')
+  if (!registerChecking(req.body)) return (res.status(400).send('Bad Request'));
+
+  console.log('4')
   const userID = generateRandomString()
   const email = req.body.email
   const password = req.body.password
@@ -61,16 +68,26 @@ app.post("/register", (req, res) => {
     email: email,
     password: password
   }
-  res.cookie("username", userID); 
+  res.cookie("userID", userID); 
   res.redirect(`/urls/`)
 });
-
 
 // functionality for login and logout / 
 app.post("/login", (req, res) => {
   const username = req.body.username;
   res.cookie("username", username); 
   res.redirect(`/urls/`)
+});
+
+app.get("/login", (req, res) => {
+  // const username = req.body.username;
+  // res.cookie("username", username); 
+  // res.redirect(`/urls/`)
+  const templateVars = { 
+    user: req.cookies["userID"],
+    // urls: urlDatabase 
+  };
+  res.render('urls_login', templateVars)
 });
 
 app.post("/logout", (req, res) => {
@@ -101,7 +118,7 @@ app.get('/urls/new', (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]
   const templateVars = { 
-    username: req.cookies["username"],
+    user: req.cookies["userID"],
     shortURL: req.params.shortURL, longURL: longURL };
   res.render("urls_show", templateVars);
 });
@@ -134,3 +151,20 @@ function generateRandomString() {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`)
 })
+
+const registerChecking = (body) => {
+  console.log(body.email)
+  for (const user in users) {
+    console.log('2')
+
+    console.log(users[user].email)
+      if(users[user].email === body.email){
+        console.log('3')
+
+        return(null)
+      }
+  }
+  console.log('4')
+
+  return(true)
+}
