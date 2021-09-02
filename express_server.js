@@ -36,7 +36,6 @@ app.get('/urls', (req, res) => {
   const templateVars = { 
     user: users[userID],
     urls: urlDatabase };
-    console.log(templateVars)
   res.render('urls_index', templateVars)
 })
 
@@ -56,10 +55,7 @@ app.get('/register', (req, res) => {
 
 app.post("/register", (req, res) => {
   if (!req.body.email || !req.body.password) return (res.status(400).send('Bad Request'));
-  console.log('1')
   if (!registerChecking(req.body)) return (res.status(400).send('Bad Request'));
-
-  console.log('4')
   const userID = generateRandomString()
   const email = req.body.email
   const password = req.body.password
@@ -72,17 +68,22 @@ app.post("/register", (req, res) => {
   res.redirect(`/urls/`)
 });
 
-// functionality for login and logout / 
+/////////////////////   functionality for login and logout / 
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie("username", username); 
+  //If a user with that e-mail cannot be found, return a response with a 403 status code.
+  if (!registerChecking(req.body)) return (res.status(403).send('Forbidden, user does not exist'));
+
+  const userIDLogin = registerChecking(req.body)
+
+  //If a user with that e-mail address is located, compare the password given in the form with the existing user's password. If it does not match, return a response with a 403 status code.
+  if (req.body.password !== users[userIDLogin].password) return (res.status(403).send('Forbidden, password wrong'));
+
+  //if both checks pass as
+  res.cookie("userID", userIDLogin); 
   res.redirect(`/urls/`)
 });
 
 app.get("/login", (req, res) => {
-  // const username = req.body.username;
-  // res.cookie("username", username); 
-  // res.redirect(`/urls/`)
   const templateVars = { 
     user: req.cookies["userID"],
     // urls: urlDatabase 
@@ -152,19 +153,13 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`)
 })
 
+//function which looks through the user registry and determines if the user already exists. If the user exists return the usersID, If the user does not exist return null
 const registerChecking = (body) => {
-  console.log(body.email)
   for (const user in users) {
-    console.log('2')
-
-    console.log(users[user].email)
       if(users[user].email === body.email){
-        console.log('3')
-
-        return(null)
+        console.log(users[user].id)
+        return(users[user].id)
       }
   }
-  console.log('4')
-
-  return(true)
+  return(null)
 }
