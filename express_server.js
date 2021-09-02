@@ -134,7 +134,9 @@ app.get("/u/:shortURL", (req, res) => {
 
 //function which dynamically loads the urls by catching the shortURL entered and dynamically passing it to the urls_show ejs
 app.get("/urls/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL]
+  const urlObject = urlDatabase[req.params.shortURL]
+  const longURL = urlObject.longURL
+  console.log(longURL)
   const templateVars = { 
     user: req.cookies["userID"],
     shortURL: req.params.shortURL, longURL: longURL };
