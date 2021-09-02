@@ -4,13 +4,14 @@ const PORT = 8080
 app.set('view engine', 'ejs')
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const { compile } = require('ejs');
 app.use(cookieParser())
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-}
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
+};
 
 const users = { 
   "userRandomID": {
@@ -95,9 +96,15 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars)
 })
 
+//function which recieves the results of the form for creating new urls. Creates and adds a new key to the object in the form of shortUrl: {longUrl: website, userID: userID}. Then redirects to the new shortURL url to allow user to view/edit the url
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString()
-  urlDatabase[shortURL] = req.body.longURL
+
+  urlDatabase[shortURL] = {
+    longURL: req.body.longURL,
+    userID: req.cookies.userID
+  }
+
   res.redirect(`/urls/${shortURL}`)
 });
 
