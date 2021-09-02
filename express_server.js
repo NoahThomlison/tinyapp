@@ -38,7 +38,7 @@ app.get('/register', (req, res) => {
     res.render('urls_registration', templateVars)
 })
 
-
+// function which creates a new user in the user object based on information passed during registration page. Checks if valid email + password combo has been entered. Checks if user already exits. If passes the checks then creates the new user and adds to the user object. Then creates a cookie and redirects to /urls
 app.post("/register", (req, res) => {
   //check if a password and email has been entered, if not, return status 400
   if (!req.body.email || !req.body.password) return (res.status(400).send('Bad Request, invalid email/password'));
@@ -76,7 +76,6 @@ app.post("/login", (req, res) => {
 app.get("/login", (req, res) => {
   const templateVars = { 
     user: req.cookies["userID"],
-    // urls: urlDatabase 
   };
   res.render('urls_login', templateVars)
 });
@@ -104,7 +103,15 @@ app.post("/urls", (req, res) => {
 
 // functionality for /urls/new page 
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new')
+  const userID = req.cookies["userID"]
+
+  //if user is not logged in sent them to login page
+  if (userID === undefined) res.redirect(`/login/`)
+
+  const templateVars = { 
+    user: users[userID],
+    urls: urlDatabase };
+  res.render('urls_new', templateVars)
 })
 
 app.get("/urls.json", (req, res) => {
@@ -118,6 +125,7 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL)
 });
 
+//function which dynamically loads the urls by catching the shortURL entered and dynamically passing it to the urls_show ejs
 app.get("/urls/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]
   const templateVars = { 
@@ -164,7 +172,6 @@ app.listen(PORT, () => {
 const registerChecking = (body) => {
   for (const user in users) {
       if(users[user].email === body.email){
-        console.log(users[user].id)
         return(users[user].id)
       }
   }
