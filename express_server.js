@@ -90,6 +90,7 @@ app.post("/logout", (req, res) => {
 /////////////////////   /URL URL  /////////////////////
 app.get('/urls', (req, res) => {
   const userID = req.cookies["userID"]
+  console.log(userID)
   const templateVars = { 
     user: users[userID],
     urls: urlDatabase };
