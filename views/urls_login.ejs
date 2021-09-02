@@ -13,16 +13,14 @@
   <%- include('partials/_header') %>  
   <main style="margin: 1em;">
     <form method="post" action="/login">
-    <div>
-      <h4>Email: </h4> 
-      <input name='email'></inpiut>
-    </div>
-    <div>
-      <h4>Password: </h4> 
-      <input name='password'></inpiut>
-    </div>
-    <button type="submit" style="border-radius: 7px; background-color: #2bc5f89f">Submit
-    </form>        
+      <div style="display: flex; flex-direction: column; width: 100%; justify-content: space-around;  align-items: center;">
+        <label>Email Address: </label> 
+        <input name='email'></inpiut>
+        <label>Password: </label> 
+        <input name='password'></inpiut>
+        <button type="submit" style='background-color: #2bc5f89f; border-radius: 7px; margin-top: 10px;'>Submit</button>
+      </div>        
+    </form>
   </main>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

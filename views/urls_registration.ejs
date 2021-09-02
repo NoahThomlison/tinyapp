@@ -13,11 +13,13 @@
   <%- include('partials/_header') %>  
   <main style="margin: 1em;">
     <form method="POST" action="/register">
-      <label>Email Address: </label>
-      <input type='email' name='email'>
-      <label>Password: </label>
-      <input type='password' name='password'>
-      <button type="submit" style='background-color: #ff837a; border-radius: 7px;'>Register</button>
+      <div style="display: flex; flex-direction: column; width: 100%; justify-content: space-around; align-items: center;">
+        <label>Email Address: </label>
+        <input type='email' name='email'>
+        <label>Password: </label>
+        <input type='password' name='password'>
+        <button type="submit" style='background-color: #2bc5f89f; border-radius: 7px; margin-top: 10px;'>Register</button>
+      </div>
     </form>
   </main>
   <!-- Bootstrap JS -->

@@ -30,22 +30,7 @@ app.get('/', (req, res) => {
   res.send('Hello')
 })
 
-// functionality for /urls page 
-app.get('/urls', (req, res) => {
-  const userID = req.cookies["userID"]
-  const templateVars = { 
-    user: users[userID],
-    urls: urlDatabase };
-  res.render('urls_index', templateVars)
-})
-
-app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString()
-  urlDatabase[shortURL] = req.body.longURL
-  res.redirect(`/urls/${shortURL}`)
-});
-
-// functionality for register / 
+/////////////////////   REGISTER URL  /////////////////////
 app.get('/register', (req, res) => {
   const templateVars = { 
     user: req.cookies["userID"],
@@ -53,9 +38,14 @@ app.get('/register', (req, res) => {
     res.render('urls_registration', templateVars)
 })
 
+
 app.post("/register", (req, res) => {
-  if (!req.body.email || !req.body.password) return (res.status(400).send('Bad Request'));
-  if (!registerChecking(req.body)) return (res.status(400).send('Bad Request'));
+  //check if a password and email has been entered, if not, return status 400
+  if (!req.body.email || !req.body.password) return (res.status(400).send('Bad Request, invalid email/password'));
+
+  //check if the user exists, if true, return status 400
+  if (registerChecking(req.body)) return (res.status(400).send('Bad Request, User already exists'));
+
   const userID = generateRandomString()
   const email = req.body.email
   const password = req.body.password
@@ -68,7 +58,7 @@ app.post("/register", (req, res) => {
   res.redirect(`/urls/`)
 });
 
-/////////////////////   functionality for login and logout / 
+/////////////////////   LOGIN URL  /////////////////////
 app.post("/login", (req, res) => {
   //If a user with that e-mail cannot be found, return a response with a 403 status code.
   if (!registerChecking(req.body)) return (res.status(403).send('Forbidden, user does not exist'));
@@ -91,15 +81,49 @@ app.get("/login", (req, res) => {
   res.render('urls_login', templateVars)
 });
 
+/////////////////////   LOGOUT URL  /////////////////////
 app.post("/logout", (req, res) => {
-  res.clearCookie("username")
+  res.clearCookie("userID")
   res.redirect(`/urls/`)
 });
 
-//post method for deleting entries in the urls
-app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL]
-  res.redirect(`/urls`)
+/////////////////////   /URL URL  /////////////////////
+app.get('/urls', (req, res) => {
+  const userID = req.cookies["userID"]
+  const templateVars = { 
+    user: users[userID],
+    urls: urlDatabase };
+  res.render('urls_index', templateVars)
+})
+
+app.post("/urls", (req, res) => {
+  const shortURL = generateRandomString()
+  urlDatabase[shortURL] = req.body.longURL
+  res.redirect(`/urls/${shortURL}`)
+});
+
+// functionality for /urls/new page 
+app.get('/urls/new', (req, res) => {
+  res.render('urls_new')
+})
+
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+/////////////////////   LOGIN /urls/:shortURL  /////////////////////
+
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL]
+  res.redirect(longURL)
+});
+
+app.get("/urls/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL]
+  const templateVars = { 
+    user: req.cookies["userID"],
+    shortURL: req.params.shortURL, longURL: longURL };
+  res.render("urls_show", templateVars);
 });
 
 //post method for updating entries in the urls
@@ -110,27 +134,10 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect(`/urls`)
 });
 
-// functionality for /urls/new page 
-app.get('/urls/new', (req, res) => {
-  res.render('urls_new')
-})
-
-// functionality for /urls/:shortURL pages
-app.get("/urls/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL]
-  const templateVars = { 
-    user: req.cookies["userID"],
-    shortURL: req.params.shortURL, longURL: longURL };
-  res.render("urls_show", templateVars);
-});
-
-app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL]
-  res.redirect(longURL)
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
+//post method for deleting entries in the urls
+app.post("/urls/:shortURL/delete", (req, res) => {
+  delete urlDatabase[req.params.shortURL]
+  res.redirect(`/urls`)
 });
 
 app.get("/hello", (req, res) => {
@@ -161,5 +168,5 @@ const registerChecking = (body) => {
         return(users[user].id)
       }
   }
-  return(null)
+  return(false)
 }
