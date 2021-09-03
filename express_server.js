@@ -95,7 +95,6 @@ app.post("/logout", (req, res) => {
 //////////////////////////////////////////   /URL URL  //////////////////////////////////////////
 app.get('/urls', (req, res) => {
   const userID = req.cookies.userID
-  console.log(users[req.cookies.userID])
   const templateVars = { 
     user:  users[userID],
     urls: urlDatabase };
@@ -143,10 +142,12 @@ app.get("/u/:shortURL", (req, res) => {
 
 //function which dynamically loads the urls by catching the shortURL entered and dynamically passing it to the urls_show ejs
 app.get("/urls/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL]
+  const userID = req.cookies["userID"]
+  const shortURL = req.params.shortURL
+  const longURL = urlDatabase[shortURL].longURL
   const templateVars = { 
-    user: req.cookies["userID"],
-    shortURL: req.params.shortURL, longURL };
+    user: users[userID],
+    shortURL, longURL};
   res.render("urls_show", templateVars);
 });
 
