@@ -9,8 +9,12 @@ const { compile } = require('ejs');
 app.use(cookieParser())
 
 const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "userRandomID" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "userRandomID" },
+  sodu35: { longURL: "https://www.sometyhing.ca", userID: "user3RandomID" },
+  n738xz: { longURL: "https://www.googleasfafaf.ca", userID: "user3RandomID" },
+  fnutx: { longURL: "https://www.mdt2.ca", userID: "user4RandomID" },
+  qj1zd1: { longURL: "https://www.mdt.ca", userID: "user4RandomID" }
 };
 
 const users = { 
@@ -27,6 +31,11 @@ const users = {
   "user3RandomID": {
     id: "user3RandomID", 
     email: "noahthomlison@gmail.com", 
+    password: "1"
+  },
+  "user4RandomID": {
+    id: "user4RandomID", 
+    email: "nthomlison@mdttac.com", 
     password: "1"
   }
 }
@@ -95,12 +104,20 @@ app.post("/logout", (req, res) => {
 //////////////////////////////////////////   /URL URL  //////////////////////////////////////////
 app.get('/urls', (req, res) => {
   const userID = req.cookies.userID
+  console.log(urlDatabase)
+
+  // const loggedInUserURLS = urlsForUser(userID)
+  // console.log(loggedInUserURLS)
   const templateVars = { 
     user:  users[userID],
     urls: urlDatabase };
-    
+  // console.log(templateVars)
+
   res.render('urls_index', templateVars)
 })
+
+
+// const urlsForUser = (id) => {
 
 //function which recieves the results of the form for creating new urls. Creates and adds a new key to the object in the form of shortUrl: {longUrl: website, userID: userID}. Then redirects to the new shortURL url to allow user to view/edit the url
 app.post("/urls", (req, res) => {
@@ -109,23 +126,22 @@ app.post("/urls", (req, res) => {
     longURL: req.body.longURL,
     userID: req.cookies.userID
   }
-
   res.redirect(`/urls/${shortURL}`)
 });
+
+//////////////////////////////////////////    /urls/new page   //////////////////////////////////////////
+
 
 // functionality for /urls/new page 
 app.get('/urls/new', (req, res) => {
   const userID = req.cookies.userID
-
   //if user is not logged in sent them to login page
   if (userID === undefined) {
     return res.redirect(`/login/`)
   }
-
   const templateVars = { 
     user: users[userID],
     urls: urlDatabase };
-
   res.render('urls_new', templateVars)
 })
 
@@ -195,17 +211,24 @@ const registerChecking = (body) => {
   return(false)
 }
 
-const urlsForUser = (id) => {
-  let userUrlDatabase
-  for (const url in urlDatabase) {
-    if(id === url{
-      let shortURL = url
-      let longURL = url.longURL
-      let userID = url.userID
-      userUrlDatabase = {
-        shortURL: {longURL, userID}
-      }
-    }
-  }
-  return(userUrlDatabase)
-}
+// const urlsForUser = (id) => {
+//   let userUrlDatabase
+//   for (const url in urlDatabase) {
+//     if(id === urlDatabase[url].userID){
+//       let shortURL = urlDatabase[url]
+//       let longURL = urlDatabase[url].longURL
+//       let userID = urlDatabase[url].userID
+//       userUrlDatabase = {
+//         shortURL: {longURL, userID}
+//       }
+//     }
+//   }
+//   return(userUrlDatabase)
+// }
+
+// const urlDatabase = {
+//   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+//   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
+//   fafasfsa: { longURL: "https://www.sometyhing.ca", userID: "user3RandomID" },
+//   agag: { longURL: "https://www.googleasfafaf.ca", userID: "user3RandomID" }
+// };
