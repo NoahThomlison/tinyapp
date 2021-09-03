@@ -194,3 +194,18 @@ const registerChecking = (body) => {
   }
   return(false)
 }
+
+const urlsForUser = (id) => {
+  let userUrlDatabase
+  for (const url in urlDatabase) {
+    if(id === url{
+      let shortURL = url
+      let longURL = url.longURL
+      let userID = url.userID
+      userUrlDatabase = {
+        shortURL: {longURL, userID}
+      }
+    }
+  }
+  return(userUrlDatabase)
+}
