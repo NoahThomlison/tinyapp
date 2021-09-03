@@ -24,7 +24,6 @@
         </tr>
       </thead>
       <tbody>
-        
         <% for(let url in urls) { %>
           <tr>
             <td><%= url %></td>
@@ -32,8 +31,7 @@
             <td>
               <a href="/urls/<%= url %>">
                 <button style="border-radius: 7px; background-color: #2bc5f89f;">Edit</button>
-            </a>
-
+              </a>
             </td>
             <td>
               <form method="POST" action="/urls/<%= url %>/delete">

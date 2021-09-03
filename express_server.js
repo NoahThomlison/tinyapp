@@ -23,6 +23,11 @@ const users = {
     id: "user2RandomID", 
     email: "user2@example.com", 
     password: "dishwasher-funk"
+  },
+  "user3RandomID": {
+    id: "user3RandomID", 
+    email: "noahthomlison@gmail.com", 
+    password: "1"
   }
 }
 
@@ -55,7 +60,7 @@ app.post("/register", (req, res) => {
     email: email,
     password: password
   }
-  res.cookie("userID", userID); 
+  res.cookie("userID", userID);
   res.redirect(`/urls/`)
 });
 
@@ -90,9 +95,9 @@ app.post("/logout", (req, res) => {
 //////////////////////////////////////////   /URL URL  //////////////////////////////////////////
 app.get('/urls', (req, res) => {
   const userID = req.cookies.userID
-
+  console.log(users[req.cookies.userID])
   const templateVars = { 
-    user: req.cookies.userID,
+    user:  users[userID],
     urls: urlDatabase };
     
   res.render('urls_index', templateVars)
