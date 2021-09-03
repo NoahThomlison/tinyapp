@@ -31,7 +31,7 @@ app.get('/', (req, res) => {
   res.send('Hello')
 })
 
-/////////////////////   REGISTER URL  /////////////////////
+//////////////////////////////////////////   REGISTER URL  //////////////////////////////////////////
 app.get('/register', (req, res) => {
   const templateVars = { 
     user: req.cookies["userID"],
@@ -59,7 +59,7 @@ app.post("/register", (req, res) => {
   res.redirect(`/urls/`)
 });
 
-/////////////////////   LOGIN URL  /////////////////////
+//////////////////////////////////////////   LOGIN URL  /////////////////////////////////////////
 app.post("/login", (req, res) => {
   //If a user with that e-mail cannot be found, return a response with a 403 status code.
   if (!registerChecking(req.body)) return (res.status(403).send('Forbidden, user does not exist'));
@@ -81,26 +81,26 @@ app.get("/login", (req, res) => {
   res.render('urls_login', templateVars)
 });
 
-/////////////////////   LOGOUT URL  /////////////////////
+//////////////////////////////////////////   LOGOUT URL  //////////////////////////////////////////
 app.post("/logout", (req, res) => {
   res.clearCookie("userID")
   res.redirect(`/urls/`)
 });
 
-/////////////////////   /URL URL  /////////////////////
+//////////////////////////////////////////   /URL URL  //////////////////////////////////////////
 app.get('/urls', (req, res) => {
-  const userID = req.cookies["userID"]
-  console.log(userID)
+  const userID = req.cookies.userID
+
   const templateVars = { 
-    user: users[userID],
+    user: req.cookies.userID,
     urls: urlDatabase };
+    
   res.render('urls_index', templateVars)
 })
 
 //function which recieves the results of the form for creating new urls. Creates and adds a new key to the object in the form of shortUrl: {longUrl: website, userID: userID}. Then redirects to the new shortURL url to allow user to view/edit the url
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString()
-
   urlDatabase[shortURL] = {
     longURL: req.body.longURL,
     userID: req.cookies.userID
@@ -111,14 +111,17 @@ app.post("/urls", (req, res) => {
 
 // functionality for /urls/new page 
 app.get('/urls/new', (req, res) => {
-  const userID = req.cookies["userID"]
+  const userID = req.cookies.userID
 
   //if user is not logged in sent them to login page
-  if (userID === undefined) res.redirect(`/login/`)
+  if (userID === undefined) {
+    return res.redirect(`/login/`)
+  }
 
   const templateVars = { 
     user: users[userID],
     urls: urlDatabase };
+
   res.render('urls_new', templateVars)
 })
 
@@ -126,7 +129,7 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-/////////////////////   LOGIN /urls/:shortURL  /////////////////////
+//////////////////////////////////////////   LOGIN /urls/:shortURL  //////////////////////////////////////////
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]
@@ -135,12 +138,10 @@ app.get("/u/:shortURL", (req, res) => {
 
 //function which dynamically loads the urls by catching the shortURL entered and dynamically passing it to the urls_show ejs
 app.get("/urls/:shortURL", (req, res) => {
-  const urlObject = urlDatabase[req.params.shortURL]
-  const longURL = urlObject.longURL
-  console.log(longURL)
+  const longURL = urlDatabase[req.params.shortURL]
   const templateVars = { 
     user: req.cookies["userID"],
-    shortURL: req.params.shortURL, longURL: longURL };
+    shortURL: req.params.shortURL, longURL };
   res.render("urls_show", templateVars);
 });
 
