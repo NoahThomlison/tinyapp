@@ -1,12 +1,21 @@
 const express = require('express')
 const app = express()
 const PORT = 8080
+
+//EJS requires
 app.set('view engine', 'ejs')
+const { compile } = require('ejs');
+
+//bodyParser requires
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
+
+//cookieParser requires
 const cookieParser = require('cookie-parser');
-const { compile } = require('ejs');
 app.use(cookieParser())
+
+//bcrypt requires
+const bcrypt = require('bcryptjs');
 
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "userRandomID" },
@@ -33,11 +42,11 @@ const users = {
     email: "noahthomlison@gmail.com", 
     password: "1"
   },
-  "user4RandomID": {
-    id: "user4RandomID", 
-    email: "nthomlison@mdttac.com", 
-    password: "1"
-  }
+  // "user4RandomID": {
+  //   id: "user4RandomID", 
+  //   email: "nthomlison@mdttac.com", 
+  //   password: "1"
+  // }
 }
 
 // functionality for home page / 
@@ -64,10 +73,11 @@ app.post("/register", (req, res) => {
   const userID = generateRandomString()
   const email = req.body.email
   const password = req.body.password
+  const hashedPassword = bcrypt.hashSync(password, 10);
   users[userID] = {
     id: userID,
     email: email,
-    password: password
+    password: hashedPassword
   }
   res.cookie("userID", userID);
   res.redirect(`/urls/`)
@@ -75,13 +85,16 @@ app.post("/register", (req, res) => {
 
 //////////////////////////////////////////   LOGIN URL  /////////////////////////////////////////
 app.post("/login", (req, res) => {
+  ; // returns true
+  console.log(users)
+
   //If a user with that e-mail cannot be found, return a response with a 403 status code.
   if (!registerChecking(req.body)) return (res.status(403).send('Forbidden, user does not exist'));
 
   const userIDLogin = registerChecking(req.body)
 
   //If a user with that e-mail address is located, compare the password given in the form with the existing user's password. If it does not match, return a response with a 403 status code.
-  if (req.body.password !== users[userIDLogin].password) return (res.status(403).send('Forbidden, password wrong'));
+  if (!bcrypt.compareSync(req.body.password, users[userIDLogin].password)) return (res.status(403).send('Forbidden, password wrong'));
 
   //if both checks pass as
   res.cookie("userID", userIDLogin); 
