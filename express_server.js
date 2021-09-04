@@ -112,10 +112,6 @@ app.get('/urls', (req, res) => {
     user:  users[userID],
     urls: userUrlDatabase }; 
 
-  // const templateVars = { 
-  //   user:  users[userID],
-  //   urls: urlDatabase }; 
-
   res.render('urls_index', templateVars)
 })
 
@@ -160,6 +156,12 @@ app.get("/urls/:shortURL", (req, res) => {
   const userID = req.cookies["userID"]
   const shortURL = req.params.shortURL
   const longURL = urlDatabase[shortURL].longURL
+
+  //conditional that checks if the user is the owner of the URL being accessed
+  if(urlDatabase[shortURL].userID !== userID){
+    (res.status(400).send('Bad Request, this is not your link'))
+  }
+
   const templateVars = { 
     user: users[userID],
     shortURL, longURL};
@@ -177,6 +179,12 @@ app.post("/urls/:shortURL", (req, res) => {
 
 //post method for deleting entries in the urls
 app.post("/urls/:shortURL/delete", (req, res) => {
+
+  //conditional that checks if the user is the owner of the URL being accessed
+  if(urlDatabase[shortURL].userID !== userID){
+    (res.status(400).send('Bad Request, this is not your link'))
+  }
+  
   delete urlDatabase[req.params.shortURL]
   res.redirect(`/urls`)
 });
@@ -226,4 +234,8 @@ const urlsForUser = (id) => {
     }
   }
   return(userUrlDatabase)
+}
+
+const belongsToCurrentUser = (id) => {
+
 }
