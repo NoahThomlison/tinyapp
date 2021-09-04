@@ -105,10 +105,16 @@ app.post("/logout", (req, res) => {
 app.get('/urls', (req, res) => {
   const userID = req.cookies.userID
   console.log(urlDatabase)
+  
+  let userUrlDatabase = urlsForUser(userID)
 
   const templateVars = { 
     user:  users[userID],
-    urls: urlDatabase }; 
+    urls: userUrlDatabase }; 
+
+  // const templateVars = { 
+  //   user:  users[userID],
+  //   urls: urlDatabase }; 
 
   res.render('urls_index', templateVars)
 })
@@ -205,24 +211,19 @@ const registerChecking = (body) => {
   return(false)
 }
 
-// const urlsForUser = (id) => {
-//   let userUrlDatabase
-//   for (const url in urlDatabase) {
-//     if(id === urlDatabase[url].userID){
-//       let shortURL = urlDatabase[url]
-//       let longURL = urlDatabase[url].longURL
-//       let userID = urlDatabase[url].userID
-//       userUrlDatabase = {
-//         shortURL: {longURL, userID}
-//       }
-//     }
-//   }
-//   return(userUrlDatabase)
-// }
-
-// const urlDatabase = {
-//   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-//   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
-//   fafasfsa: { longURL: "https://www.sometyhing.ca", userID: "user3RandomID" },
-//   agag: { longURL: "https://www.googleasfafaf.ca", userID: "user3RandomID" }
-// };
+// Takes in a userID and loops through the urlDatabase to find out which urls belong to that user. Creates a new urlDatabase for that specific users. Returns the new database.password
+// Input: userID
+// Output: userID specific urlDatabase
+const urlsForUser = (id) => {
+  let userUrlDatabase = {}
+  for (const url in urlDatabase) {
+    if(id === urlDatabase[url].userID){
+      let shortURL = url
+      let longURL = urlDatabase[url].longURL
+      let userID = urlDatabase[url].userID
+      userUrlDatabase[shortURL] = 
+        {longURL, userID}
+    }
+  }
+  return(userUrlDatabase)
+}
