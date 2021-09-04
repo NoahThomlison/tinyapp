@@ -157,11 +157,6 @@ app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
   const longURL = urlDatabase[shortURL].longURL
 
-  // //conditional that checks if the user is the owner of the URL being accessed
-  // if(urlDatabase[shortURL].userID !== userID){
-  //   (res.status(400).send('Bad Request, this is not your link'))
-  // }
-
   const templateVars = { 
     user: users[userID],
     shortURL, longURL};
@@ -174,10 +169,8 @@ app.post("/urls/:shortURL", (req, res) => {
   const longURL = req.body.longURL
   const userID = req.cookies["userID"]
 
-  //conditional that checks if the user is the owner of the URL being accessed
-  if(urlDatabase[shortURL].userID !== userID){
-    (res.status(400).send('Bad Request, this is not your link'))
-  }
+  //function which checks if the active user is the the owner of the URL
+  if (!isActiveUsersURL(req)) {return(res.status(400).send('Bad Request, this is not your link'))}
 
   urlDatabase[shortURL] = {longURL, userID: req.cookies.userID}
   res.redirect(`/urls`)
@@ -186,13 +179,9 @@ app.post("/urls/:shortURL", (req, res) => {
 //post method for deleting entries in the urls
 app.post("/urls/:shortURL/delete", (req, res) => {
   const userID = req.cookies["userID"]
-  const shortURL = req.params.shortURL
-  const longURL = urlDatabase[shortURL].longURL
-  
-  //conditional that checks if the user is the owner of the URL being accessed
-  if(urlDatabase[shortURL].userID !== userID){
-    (res.status(400).send('Bad Request, this is not your link'))
-  }
+
+  //function which checks if the active user is the the owner of the URL
+  if (!isActiveUsersURL(req)) {return(res.status(400).send('Bad Request, this is not your link'))}
   
   delete urlDatabase[req.params.shortURL]
   res.redirect(`/urls`)
@@ -228,9 +217,13 @@ const registerChecking = (body) => {
   return(false)
 }
 
-// Takes in a userID and loops through the urlDatabase to find out which urls belong to that user. Creates a new urlDatabase for that specific users. Returns the new database.password
-// Input: userID
-// Output: userID specific urlDatabase
+/**
+* Takes in a userID and loops through the urlDatabase to find out which urls belong to that user. Creates a new urlDatabase for that specific users. Returns the new database.password
+ * Input:
+ *   - userID
+ * Returns:
+ *   - userID specific urlDatabase
+ */
 const urlsForUser = (id) => {
   let userUrlDatabase = {}
   for (const url in urlDatabase) {
@@ -243,4 +236,22 @@ const urlsForUser = (id) => {
     }
   }
   return(userUrlDatabase)
+}
+
+/**
+ * fucntion which checks if the active user is the owner of the url being accessed. If not reutrn false
+ * Input:
+ *   - req object
+ * Returns:
+ *   - true/false
+ */
+const isActiveUsersURL = (req) => {
+  const userID = req.cookies["userID"]
+  const shortURL = req.params.shortURL
+  const longURL = urlDatabase[shortURL].longURL
+  
+  //conditional that checks if the user is the owner of the URL being accessed
+  if(urlDatabase[shortURL].userID !== userID){
+    return (false)
+  }
 }
