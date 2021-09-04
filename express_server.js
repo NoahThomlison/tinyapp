@@ -106,18 +106,12 @@ app.get('/urls', (req, res) => {
   const userID = req.cookies.userID
   console.log(urlDatabase)
 
-  // const loggedInUserURLS = urlsForUser(userID)
-  // console.log(loggedInUserURLS)
   const templateVars = { 
     user:  users[userID],
-    urls: urlDatabase };
-  // console.log(templateVars)
+    urls: urlDatabase }; 
 
   res.render('urls_index', templateVars)
 })
-
-
-// const urlsForUser = (id) => {
 
 //function which recieves the results of the form for creating new urls. Creates and adds a new key to the object in the form of shortUrl: {longUrl: website, userID: userID}. Then redirects to the new shortURL url to allow user to view/edit the url
 app.post("/urls", (req, res) => {
@@ -130,7 +124,6 @@ app.post("/urls", (req, res) => {
 });
 
 //////////////////////////////////////////    /urls/new page   //////////////////////////////////////////
-
 
 // functionality for /urls/new page 
 app.get('/urls/new', (req, res) => {
@@ -170,8 +163,9 @@ app.get("/urls/:shortURL", (req, res) => {
 //post method for updating entries in the urls
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
-  const newLongURL = req.body.longURL
-  urlDatabase[shortURL] = newLongURL
+  const longURL = req.body.longURL
+  console.log(`shortURL: ${shortURL}, longURL ${longURL}, ${req.params.userID}`)
+  urlDatabase[shortURL] = {longURL, userID: req.params.userID}
   res.redirect(`/urls`)
 });
 
