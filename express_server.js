@@ -81,7 +81,6 @@ app.post("/register", (req, res) => {
 
 //////////////////////////////////////////   LOGIN URL  /////////////////////////////////////////
 app.post("/login", (req, res) => {
-  ; // returns true
   console.log(users)
 
   //If a user with that e-mail cannot be found, return a response with a 403 status code.
@@ -216,7 +215,13 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`)
 })
 
+/**
 //function which looks through the user registry and determines if the user already exists. If the user exists return the usersID, If the user does not exist return null
+ * Input:
+ *   - body
+ * Returns:
+ *   - user or false
+ */
 const registerChecking = (body) => {
   for (const user in users) {
       if(users[user].email === body.email){
@@ -265,3 +270,8 @@ const isActiveUsersURL = (req) => {
   }
   return true
 }
+
+const getUserByEmail = function(email, database) {
+  // lookup magic...
+  return user;
+};
