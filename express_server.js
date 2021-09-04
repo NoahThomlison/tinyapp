@@ -157,10 +157,10 @@ app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
   const longURL = urlDatabase[shortURL].longURL
 
-  //conditional that checks if the user is the owner of the URL being accessed
-  if(urlDatabase[shortURL].userID !== userID){
-    (res.status(400).send('Bad Request, this is not your link'))
-  }
+  // //conditional that checks if the user is the owner of the URL being accessed
+  // if(urlDatabase[shortURL].userID !== userID){
+  //   (res.status(400).send('Bad Request, this is not your link'))
+  // }
 
   const templateVars = { 
     user: users[userID],
@@ -172,6 +172,12 @@ app.get("/urls/:shortURL", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
   const longURL = req.body.longURL
+  const userID = req.cookies["userID"]
+
+  //conditional that checks if the user is the owner of the URL being accessed
+  if(urlDatabase[shortURL].userID !== userID){
+    (res.status(400).send('Bad Request, this is not your link'))
+  }
 
   urlDatabase[shortURL] = {longURL, userID: req.cookies.userID}
   res.redirect(`/urls`)
@@ -179,7 +185,10 @@ app.post("/urls/:shortURL", (req, res) => {
 
 //post method for deleting entries in the urls
 app.post("/urls/:shortURL/delete", (req, res) => {
-
+  const userID = req.cookies["userID"]
+  const shortURL = req.params.shortURL
+  const longURL = urlDatabase[shortURL].longURL
+  
   //conditional that checks if the user is the owner of the URL being accessed
   if(urlDatabase[shortURL].userID !== userID){
     (res.status(400).send('Bad Request, this is not your link'))
@@ -234,8 +243,4 @@ const urlsForUser = (id) => {
     }
   }
   return(userUrlDatabase)
-}
-
-const belongsToCurrentUser = (id) => {
-
 }
