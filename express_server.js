@@ -10,9 +10,15 @@ const { compile } = require('ejs');
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-//cookieParser requires
-const cookieParser = require('cookie-parser');
-app.use(cookieParser())
+//cookieSession requires
+const cookieSession = require('cookie-session')
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1'],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
 
 //bcrypt requires
 const bcrypt = require('bcryptjs');
@@ -36,17 +42,7 @@ const users = {
     id: "user2RandomID", 
     email: "user2@example.com", 
     password: "dishwasher-funk"
-  },
-  "user3RandomID": {
-    id: "user3RandomID", 
-    email: "noahthomlison@gmail.com", 
-    password: "1"
-  },
-  // "user4RandomID": {
-  //   id: "user4RandomID", 
-  //   email: "nthomlison@mdttac.com", 
-  //   password: "1"
-  // }
+  }
 }
 
 // functionality for home page / 
@@ -57,7 +53,7 @@ app.get('/', (req, res) => {
 //////////////////////////////////////////   REGISTER URL  //////////////////////////////////////////
 app.get('/register', (req, res) => {
   const templateVars = { 
-    user: req.cookies["userID"],
+    user: req.session["userID"],
     urls: urlDatabase };
     res.render('urls_registration', templateVars)
 })
@@ -79,7 +75,7 @@ app.post("/register", (req, res) => {
     email: email,
     password: hashedPassword
   }
-  res.cookie("userID", userID);
+  req.session.userID = userID;
   res.redirect(`/urls/`)
 });
 
@@ -97,26 +93,26 @@ app.post("/login", (req, res) => {
   if (!bcrypt.compareSync(req.body.password, users[userIDLogin].password)) return (res.status(403).send('Forbidden, password wrong'));
 
   //if both checks pass as
-  res.cookie("userID", userIDLogin); 
+  req.session.userID = userIDLogin;
   res.redirect(`/urls/`)
 });
 
 app.get("/login", (req, res) => {
   const templateVars = { 
-    user: req.cookies["userID"],
+    user: req.session["userID"],
   };
   res.render('urls_login', templateVars)
 });
 
 //////////////////////////////////////////   LOGOUT URL  //////////////////////////////////////////
 app.post("/logout", (req, res) => {
-  res.clearCookie("userID")
+  req.session = null
   res.redirect(`/urls/`)
 });
 
 //////////////////////////////////////////   /URL URL  //////////////////////////////////////////
 app.get('/urls', (req, res) => {
-  const userID = req.cookies.userID
+  const userID = req.session.userID
   console.log(urlDatabase)
   
   let userUrlDatabase = urlsForUser(userID)
@@ -133,7 +129,7 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString()
   urlDatabase[shortURL] = {
     longURL: req.body.longURL,
-    userID: req.cookies.userID
+    userID: req.session.userID
   }
   res.redirect(`/urls/${shortURL}`)
 });
@@ -142,7 +138,7 @@ app.post("/urls", (req, res) => {
 
 // functionality for /urls/new page 
 app.get('/urls/new', (req, res) => {
-  const userID = req.cookies.userID
+  const userID = req.session.userID
   //if user is not logged in sent them to login page
   if (userID === undefined) {
     return res.redirect(`/login/`)
@@ -166,7 +162,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 //function which dynamically loads the urls by catching the shortURL entered and dynamically passing it to the urls_show ejs
 app.get("/urls/:shortURL", (req, res) => {
-  const userID = req.cookies["userID"]
+  const userID = req.session["userID"]
   const shortURL = req.params.shortURL
   const longURL = urlDatabase[shortURL].longURL
 
@@ -180,18 +176,18 @@ app.get("/urls/:shortURL", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
   const longURL = req.body.longURL
-  const userID = req.cookies["userID"]
+  const userID = req.session["userID"]
 
   //function which checks if the active user is the the owner of the URL
   if (!isActiveUsersURL(req)) {return(res.status(400).send('Bad Request, this is not your link'))}
 
-  urlDatabase[shortURL] = {longURL, userID: req.cookies.userID}
+  urlDatabase[shortURL] = {longURL, userID: req.session.userID}
   res.redirect(`/urls`)
 });
 
 //post method for deleting entries in the urls
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const userID = req.cookies["userID"]
+  const userID = req.session["userID"]
 
   //function which checks if the active user is the the owner of the URL
   if (!isActiveUsersURL(req)) {return(res.status(400).send('Bad Request, this is not your link'))}
@@ -259,12 +255,13 @@ const urlsForUser = (id) => {
  *   - true/false
  */
 const isActiveUsersURL = (req) => {
-  const userID = req.cookies["userID"]
+  const userID = req.session["userID"]
   const shortURL = req.params.shortURL
   const longURL = urlDatabase[shortURL].longURL
-  
+
   //conditional that checks if the user is the owner of the URL being accessed
   if(urlDatabase[shortURL].userID !== userID){
     return (false)
   }
+  return true
 }
