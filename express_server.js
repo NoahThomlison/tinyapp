@@ -81,12 +81,12 @@ app.post("/register", (req, res) => {
 
 //////////////////////////////////////////   LOGIN URL  /////////////////////////////////////////
 app.post("/login", (req, res) => {
-  console.log(users)
 
   //If a user with that e-mail cannot be found, return a response with a 403 status code.
   if (!registerChecking(req.body)) return (res.status(403).send('Forbidden, user does not exist'));
 
-  const userIDLogin = registerChecking(req.body)
+  //function which returns the user by thier email
+  const userIDLogin = getUserByEmail(req.body.email, users)
 
   //If a user with that e-mail address is located, compare the password given in the form with the existing user's password. If it does not match, return a response with a 403 status code.
   if (!bcrypt.compareSync(req.body.password, users[userIDLogin].password)) return (res.status(403).send('Forbidden, password wrong'));
@@ -218,14 +218,15 @@ app.listen(PORT, () => {
 /**
 //function which looks through the user registry and determines if the user already exists. If the user exists return the usersID, If the user does not exist return null
  * Input:
- *   - body
+ *   - req
  * Returns:
- *   - user or false
+ *   - true/false
  */
 const registerChecking = (body) => {
   for (const user in users) {
       if(users[user].email === body.email){
-        return(users[user].id)
+        // return(users[user].id)
+        return true
       }
   }
   return(false)
@@ -253,7 +254,7 @@ const urlsForUser = (id) => {
 }
 
 /**
- * fucntion which checks if the active user is the owner of the url being accessed. If not reutrn false
+ * function which checks if the active user is the owner of the url being accessed. If not reutrn false
  * Input:
  *   - req object
  * Returns:
@@ -271,7 +272,19 @@ const isActiveUsersURL = (req) => {
   return true
 }
 
-const getUserByEmail = function(email, database) {
+/**
+ * fucntion which returns the user by their email
+ * Input:
+ *   - email and the userDatabase
+ * Returns:
+ *   - user ID or false
+ */
+const getUserByEmail = function(email, userDatabase) {
   // lookup magic...
-  return user;
-};
+    for (const user in userDatabase) {
+        if(userDatabase[user].email === email){
+          return(userDatabase[user].id)
+        }
+    }
+    return(false)
+}
