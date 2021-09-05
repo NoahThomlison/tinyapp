@@ -15,13 +15,14 @@ const cookieSession = require('cookie-session')
 app.use(cookieSession({
   name: 'session',
   keys: ['key1'],
-
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }))
 
 //bcrypt requires
 const bcrypt = require('bcryptjs');
+
+const getUserByEmail = require('./helpers')
 
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "userRandomID" },
@@ -87,7 +88,7 @@ app.post("/login", (req, res) => {
 
   //function which returns the user by thier email
   const userIDLogin = getUserByEmail(req.body.email, users)
-
+  console.log(userIDLogin)
   //If a user with that e-mail address is located, compare the password given in the form with the existing user's password. If it does not match, return a response with a 403 status code.
   if (!bcrypt.compareSync(req.body.password, users[userIDLogin].password)) return (res.status(403).send('Forbidden, password wrong'));
 
@@ -225,7 +226,6 @@ app.listen(PORT, () => {
 const registerChecking = (body) => {
   for (const user in users) {
       if(users[user].email === body.email){
-        // return(users[user].id)
         return true
       }
   }
@@ -272,19 +272,3 @@ const isActiveUsersURL = (req) => {
   return true
 }
 
-/**
- * fucntion which returns the user by their email
- * Input:
- *   - email and the userDatabase
- * Returns:
- *   - user ID or false
- */
-const getUserByEmail = function(email, userDatabase) {
-  // lookup magic...
-    for (const user in userDatabase) {
-        if(userDatabase[user].email === email){
-          return(userDatabase[user].id)
-        }
-    }
-    return(false)
-}
