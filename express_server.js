@@ -59,7 +59,6 @@ app.get('/register', (req, res) => {
     res.render('urls_registration', templateVars)
 })
 
-
 // function which creates a new user in the user object based on information passed during registration page. Checks if valid email + password combo has been entered. Checks if user already exits. If passes the checks then creates the new user and adds to the user object. Then creates a cookie and redirects to /urls
 app.post("/register", (req, res) => {
   //check if a password and email has been entered, if not, return status 400
@@ -162,6 +161,7 @@ app.get("/urls.json", (req, res) => {
 //////////////////////////////////////////   LOGIN /urls/:shortURL  //////////////////////////////////////////
 
 app.get("/u/:shortURL", (req, res) => {
+  console.log(urlDatabase)
   const longURL = urlDatabase[req.params.shortURL].longURL
   res.redirect(longURL)
 });
