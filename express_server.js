@@ -48,7 +48,7 @@ const users = {
 
 // functionality for home page / 
 app.get('/', (req, res) => {
-  res.send('Hello')
+  res.redirect('/urls')
 })
 
 //////////////////////////////////////////   REGISTER URL  //////////////////////////////////////////
@@ -59,41 +59,47 @@ app.get('/register', (req, res) => {
     res.render('urls_registration', templateVars)
 })
 
+
 // function which creates a new user in the user object based on information passed during registration page. Checks if valid email + password combo has been entered. Checks if user already exits. If passes the checks then creates the new user and adds to the user object. Then creates a cookie and redirects to /urls
 app.post("/register", (req, res) => {
   //check if a password and email has been entered, if not, return status 400
-  if (!req.body.email || !req.body.password) return (res.status(400).send('Bad Request, invalid email/password'));
+  if (!req.body.email || !req.body.password) {
+    return (res.status(400).send('Bad Request, invalid email/password'));
+  }
 
   //check if the user exists, if true, return status 400
-  if (registerChecking(req.body)) return (res.status(400).send('Bad Request, User already exists'));
-
-  const userID = generateRandomString()
-  const email = req.body.email
-  const password = req.body.password
-  const hashedPassword = bcrypt.hashSync(password, 10);
-  users[userID] = {
-    id: userID,
-    email: email,
-    password: hashedPassword
+  if (registerChecking(req.body)) {
+    return (res.status(400).send('Bad Request, User already exists'));
   }
-  req.session.userID = userID;
+
+  const id = generateRandomString()
+  const email = req.body.email
+  const password = bcrypt.hashSync(req.body.password, 10);
+  users[id] = { id, email,password };
+  
+  req.session.userID = id;
   res.redirect(`/urls/`)
 });
 
 //////////////////////////////////////////   LOGIN URL  /////////////////////////////////////////
 app.post("/login", (req, res) => {
 
+  const user = getUserByEmail(req.body.email, users);
+
   //If a user with that e-mail cannot be found, return a response with a 403 status code.
-  if (!registerChecking(req.body)) return (res.status(403).send('Forbidden, user does not exist'));
+  if (!user) {
+    return (res.status(403).send('Forbidden, user does not exist'));
+  }
 
   //function which returns the user by thier email
-  const userIDLogin = getUserByEmail(req.body.email, users)
-  console.log(userIDLogin)
-  //If a user with that e-mail address is located, compare the password given in the form with the existing user's password. If it does not match, return a response with a 403 status code.
-  if (!bcrypt.compareSync(req.body.password, users[userIDLogin].password)) return (res.status(403).send('Forbidden, password wrong'));
 
-  //if both checks pass as
-  req.session.userID = userIDLogin;
+  //If a user with that e-mail address is located, compare the password given in the form with the existing user's password. If it does not match, return a response with a 403 status code.
+  if (!bcrypt.compareSync(req.body.password, user.password)){
+    return (res.status(403).send('Forbidden, password wrong'));
+  }
+
+  //if both checks pass
+  req.session.userID = user.id;
   res.redirect(`/urls/`)
 });
 
@@ -115,11 +121,11 @@ app.get('/urls', (req, res) => {
   const userID = req.session.userID
   console.log(urlDatabase)
   
-  let userUrlDatabase = urlsForUser(userID)
+  let urls = urlsForUser(userID)
 
   const templateVars = { 
     user:  users[userID],
-    urls: userUrlDatabase }; 
+    urls: urls }; 
 
   res.render('urls_index', templateVars)
 })
@@ -156,7 +162,7 @@ app.get("/urls.json", (req, res) => {
 //////////////////////////////////////////   LOGIN /urls/:shortURL  //////////////////////////////////////////
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL]
+  const longURL = urlDatabase[req.params.shortURL].longURL
   res.redirect(longURL)
 });
 
